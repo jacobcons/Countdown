@@ -1,0 +1,35 @@
+{
+  "name": "countdown",
+  "version": "1.0.0",
+  "description": "Struggle to get things done? With Countdown you log in with your Gmail, create tasks with deadlines, and if you don't finish them in time we'll send out some randomly generated embarrassing emails to your contacts. If this doesn't keep you motivated, I don't know what will!",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/app.js",
+    "kysely-types": "npx kysely-codegen --camel-case --out-file ./src/db/types.ts --url env(DB_URL)",
+    "migrate": "goose up && npm run kysely-types",
+    "seed": "node ./src/db/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.3.0",
+    "@types/pg": "^8.11.6",
+    "eslint": "^8.57.0",
+    "kysely-codegen": "^0.15.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.10.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "kysely": "^0.27.3",
+    "nodemailer": "^6.9.13",
+    "pg": "^8.11.5",
+    "zod": "^3.23.8",
+    "zod-express-middleware": "^1.4.0"
+  }
+}
