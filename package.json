@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --watch",
     "start": "nodemon ./src/app.js",
     "kysely-types": "npx kysely-codegen --camel-case --out-file ./src/db/types.ts --url env(DB_URL)",
     "migrate": "goose up && npm run kysely-types",
+    "rollback": "goose reset",
     "seed": "node ./src/db/seed.js"
   },
   "keywords": [],
