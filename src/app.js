@@ -1,13 +1,10 @@
 import express from 'express';
-import { sql } from 'kysely';
-import { db } from './db/connection.js';
+import { router as authRouter } from './routers/auth.router.js';
+import morgan from 'morgan';
 const app = express();
+app.use(morgan('tiny'));
 app.use(express.json());
-app.get('/', async (req, res) => {
-    const xs = await sql `SELECT id FROM "user"`.execute(db);
-    const user = xs.rows[0];
-    res.json(user);
-});
+app.use('/auth', authRouter);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`app listening on port ${port}`);
