@@ -16,11 +16,13 @@ export async function googleCallback(req, res) {
     const code = req.query.code;
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
+    console.log(tokens);
     const oauth2 = google.oauth2({
         auth: oauth2Client,
         version: 'v2',
     });
     const { data } = await oauth2.userinfo.get();
+    const { id, email } = data;
     res.json(data);
 }
 export async function logout(req, res) { }

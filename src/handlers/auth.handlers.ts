@@ -25,12 +25,15 @@ export async function googleCallback(req: Request, res: Response) {
 
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
+  console.log(tokens);
 
   const oauth2 = google.oauth2({
     auth: oauth2Client,
     version: 'v2',
   });
   const { data } = await oauth2.userinfo.get();
+
+  const {id, email} = data;
 
   res.json(data);
 }
