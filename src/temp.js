@@ -38,7 +38,7 @@ app.use(
 );
 
 // Route to start OAuth flow
-app.get('/auth/google/generate-auth-url', (req, res) => {
+app.get('/auth/google-generate-auth-url', (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: [
@@ -51,14 +51,14 @@ app.get('/auth/google/generate-auth-url', (req, res) => {
 });
 
 // OAuth callback route
-app.get('/auth/google/callback', async (req, res) => {
+app.get('/auth/google-callback', async (req, res) => {
   const code = req.query.code;
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
-    // Get user info
+    // Get user infoid
     const oauth2 = google.oauth2({
       auth: oauth2Client,
       version: 'v2',

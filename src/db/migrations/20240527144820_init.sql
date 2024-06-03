@@ -1,10 +1,10 @@
 -- +goose Up
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY,
-  google_id TEXT NOT NULL,
+  google_id TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL,
   access_token TEXT NOT NULL,
-  refresh_token TEXT NOT NULL,
-  email TEXT NOT NULL
+  refresh_token TEXT NOT NULL
 );
 
 CREATE TABLE task (
