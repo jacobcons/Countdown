@@ -8,7 +8,6 @@ const dialect = new PostgresDialect({
     connectionString: process.env.DB_URL,
   }),
 });
-
 export const db = new Kysely<DB>({
   dialect,
 });

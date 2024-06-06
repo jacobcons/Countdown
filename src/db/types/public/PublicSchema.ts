@@ -5,6 +5,7 @@ import { type default as GooseDbVersionTable } from './GooseDbVersion';
 import { type default as UserTable } from './User';
 import { type default as TaskTable } from './Task';
 import { type default as ContactTable } from './Contact';
+import { type default as MessageTable } from './Message';
 
 export default interface PublicSchema {
   gooseDbVersion: GooseDbVersionTable;
@@ -14,4 +15,6 @@ export default interface PublicSchema {
   task: TaskTable;
 
   contact: ContactTable;
+
+  message: MessageTable;
 }

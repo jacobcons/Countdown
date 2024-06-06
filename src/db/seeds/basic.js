@@ -1,4 +1,4 @@
-import { db } from './connection.js';
+import { db } from '../connection.js';
 import { sql } from 'kysely';
 await sql `TRUNCATE TABLE contact RESTART IDENTITY CASCADE`.execute(db);
 await sql `TRUNCATE TABLE task RESTART IDENTITY CASCADE`.execute(db);

@@ -5,7 +5,10 @@ import {
   logout,
 } from '../handlers/auth.handlers.js';
 
-export const router = express.Router();
-router.get('/google-generate-auth-url', googleGenerateAuthUrl);
-router.get('/google-callback', googleCallback);
-router.post('/logout', logout);
+import { verifySessionToken } from '../middlewares/auth.middlewares.js';
+
+const router = express.Router();
+router.get('/google/generate-auth-url', googleGenerateAuthUrl);
+router.get('/google/callback', googleCallback);
+router.post('/logout', verifySessionToken, logout);
+export default router;

@@ -1,9 +1,9 @@
 import { google } from 'googleapis';
-import { dbQuery } from '../utils.js';
 import crypto from 'crypto';
 import { redis } from '../db/connection.js';
+import { dbQuery } from '../utils/db.utils.js';
 const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, process.env.GOOGLE_CALLBACK_URL);
-export async function googleGenerateAuthUrl(req, res) {
+export function googleGenerateAuthUrl(req, res) {
     res.json({
         url: oauth2Client.generateAuthUrl({
             access_type: 'offline',
@@ -16,6 +16,7 @@ export async function googleGenerateAuthUrl(req, res) {
     });
 }
 export async function googleCallback(req, res) {
+    const a = req.params.blue;
     const code = req.query.code;
     // grab access and refresh token
     const { tokens } = await oauth2Client.getToken(code);
@@ -43,6 +44,10 @@ export async function googleCallback(req, res) {
     const token = crypto.randomBytes(16).toString('base64');
     const EXPIRATION_TIME_IN_SECONDS = 60 * 60 * 24 * 7; // 1 week
     await redis.set(`sessionToken:${token}`, user.id, 'EX', EXPIRATION_TIME_IN_SECONDS);
-    return res.json({ token });
+    res.json({ token });
 }
-export async function logout(req, res) { }
+export async function logout(req, res) {
+    const { sessionToken } = req.user;
+    await redis.del(`sessionToken:${sessionToken}`);
+    res.json({ message: 'logout successful, session token deleted' });
+}

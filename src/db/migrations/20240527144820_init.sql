@@ -25,8 +25,15 @@ CREATE TABLE contact (
   email TEXT NOT NULL
 );
 
+CREATE TABLE message (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES "user"(id),
+  content TEXT NOT NULL
+);
+
 -- +goose Down
-DROP TABLE contact;
-DROP TABLE task;
-DROP TABLE "user";
+DROP TABLE IF EXISTS message;
+DROP TABLE IF EXISTS contact;
+DROP TABLE IF EXISTS task;
+DROP TABLE IF EXISTS "user";
 
