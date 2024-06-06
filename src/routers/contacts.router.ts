@@ -7,6 +7,7 @@ import {
 } from '../handlers/contacts.handlers.js';
 import { contactSchema } from '../schemas/contacts.schemas.js';
 import {
+  processRequest,
   processRequestBody,
   processRequestParams,
 } from 'zod-express-middleware';
@@ -19,8 +20,10 @@ router
   .post(processRequestBody(contactSchema), createContact);
 router
   .route('/:id')
-  .all(processRequestParams(idSchema))
-  .patch(processRequestBody(contactSchema), updateContact)
-  .delete(deleteContact);
+  .patch(
+    processRequest({ params: idSchema, body: contactSchema }),
+    updateContact,
+  )
+  .delete(processRequestParams(idSchema), deleteContact);
 
 export default router;

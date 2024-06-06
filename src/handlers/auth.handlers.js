@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import crypto from 'crypto';
-import { redis } from '../db/connection.js';
-import { dbQuery } from '../utils/db.utils.js';
+import { db, redis } from '../db/connection.js';
+import { sqlf } from '../utils/db.utils.js';
 const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, process.env.GOOGLE_CALLBACK_URL);
 export function googleGenerateAuthUrl(req, res) {
     res.json({
@@ -16,7 +16,6 @@ export function googleGenerateAuthUrl(req, res) {
     });
 }
 export async function googleCallback(req, res) {
-    const a = req.params.blue;
     const code = req.query.code;
     // grab access and refresh token
     const { tokens } = await oauth2Client.getToken(code);
@@ -30,16 +29,16 @@ export async function googleCallback(req, res) {
     const { data } = await oauth2.userinfo.get();
     const { id, email } = data;
     // insert user into db, if they already exist update their record
-    const [user] = await dbQuery `
-  INSERT INTO "user"(google_id, email, access_token, refresh_token) 
-  VALUES (${id}, ${email}, ${access_token}, ${refresh_token})
-  ON CONFLICT (google_id)
-  DO UPDATE SET
-    email = EXCLUDED.email,
-    access_token = EXCLUDED.access_token,
-    refresh_token = EXCLUDED.refresh_token
-  RETURNING id;
-  `;
+    const [user] = await sqlf `
+    INSERT INTO "user"(google_id, email, access_token, refresh_token) 
+    VALUES (${id}, ${email}, ${access_token}, ${refresh_token})
+    ON CONFLICT (google_id)
+    DO UPDATE SET
+      email = EXCLUDED.email,
+      access_token = EXCLUDED.access_token,
+      refresh_token = EXCLUDED.refresh_token
+    RETURNING id;
+  `.execute(db);
     // generate session token associated with user id, store in redis and respond as json
     const token = crypto.randomBytes(16).toString('base64');
     const EXPIRATION_TIME_IN_SECONDS = 60 * 60 * 24 * 7; // 1 week

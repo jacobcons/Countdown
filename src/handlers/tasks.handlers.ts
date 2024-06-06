@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { redis } from '../db/connection.js';
-import { dbQuery } from '../utils/db.utils.js';
+import { sqlf } from '../utils/db.utils.js';
 
 export function getTasks(req: Request, res: Response) {}
 
