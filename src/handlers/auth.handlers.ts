@@ -4,6 +4,7 @@ import { User } from '../db/types/public/User.js';
 import crypto from 'crypto';
 import { db, redis } from '../db/connection.js';
 import { sqlf } from '../utils/db.utils.js';
+import { sql } from 'kysely';
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -41,7 +42,7 @@ export async function googleCallback(req: Request, res: Response) {
   const { id, email } = data;
 
   // insert user into db, if they already exist update their record
-  const [user] = await sqlf<Pick<User, 'id'>>`
+  const { numUpdatedOrDeletedRows } = await sql<Pick<User, 'id'>>`
     INSERT INTO "user"(google_id, email, access_token, refresh_token) 
     VALUES (${id}, ${email}, ${access_token}, ${refresh_token})
     ON CONFLICT (google_id)
@@ -51,6 +52,7 @@ export async function googleCallback(req: Request, res: Response) {
       refresh_token = EXCLUDED.refresh_token
     RETURNING id;
   `.execute(db);
+  console.log(x);
 
   // generate session token associated with user id, store in redis and respond as json
   const token = crypto.randomBytes(16).toString('base64');
