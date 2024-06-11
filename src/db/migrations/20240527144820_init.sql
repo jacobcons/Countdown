@@ -1,8 +1,11 @@
 -- +goose Up
+SET timezone TO 'UTC';
+
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY,
   google_id TEXT NOT NULL UNIQUE,
   email TEXT NOT NULL,
+  name TEXT NOT NULL,
   access_token TEXT NOT NULL,
   refresh_token TEXT NOT NULL
 );

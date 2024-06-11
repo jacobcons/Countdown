@@ -1,8 +1,8 @@
 import { google } from 'googleapis';
 import crypto from 'crypto';
 import { db, redis } from '../db/connection.js';
-import { sql } from 'kysely';
-const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, process.env.GOOGLE_CALLBACK_URL);
+import { insertDefaultMessages, sqlf } from '../utils/db.utils.js';
+import { oauth2Client } from '../utils/auth.utils.js';
 export function googleGenerateAuthUrl(req, res) {
     res.json({
         url: oauth2Client.generateAuthUrl({
@@ -17,6 +17,9 @@ export function googleGenerateAuthUrl(req, res) {
 }
 export async function googleCallback(req, res) {
     const code = req.query.code;
+    if (!code) {
+        throw Error();
+    }
     // grab access and refresh token
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
@@ -27,19 +30,34 @@ export async function googleCallback(req, res) {
         version: 'v2',
     });
     const { data } = await oauth2.userinfo.get();
-    const { id, email } = data;
-    // insert user into db, if they already exist update their record
-    const x = await sql `
-    INSERT INTO "user"(google_id, email, access_token, refresh_token) 
-    VALUES (${id}, ${email}, ${access_token}, ${refresh_token})
-    ON CONFLICT (google_id)
-    DO UPDATE SET
-      email = EXCLUDED.email,
-      access_token = EXCLUDED.access_token,
-      refresh_token = EXCLUDED.refresh_token
-    RETURNING id;
+    const { id, email, name } = data;
+    console.log(data);
+    // insert user into db
+    let user;
+    try {
+        // first time logging in => insert user into db => insert default messages
+        [user] = await sqlf `
+    INSERT INTO "user"(google_id, email, name, access_token, refresh_token) 
+    VALUES (${id}, ${email}, ${name}, ${access_token}, ${refresh_token})
+    RETURNING id
   `.execute(db);
-    console.log(x);
+        await insertDefaultMessages(user.id, db);
+    }
+    catch (err) {
+        // if they already have an account => update their email, access and refresh token
+        const UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE = '23505';
+        if (err.code === UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE) {
+            [user] = await sqlf `
+        UPDATE "user"
+        SET email = ${email}, name = ${name}, access_token = ${access_token}, refresh_token = ${refresh_token}
+        WHERE google_id = ${id}
+        RETURNING id
+      `.execute(db);
+        }
+        else {
+            throw err;
+        }
+    }
     // generate session token associated with user id, store in redis and respond as json
     const token = crypto.randomBytes(16).toString('base64');
     const EXPIRATION_TIME_IN_SECONDS = 60 * 60 * 24 * 7; // 1 week

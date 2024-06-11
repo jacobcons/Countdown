@@ -14,6 +14,7 @@ import {
 import { idSchema } from '../schemas/ids.schemas.js';
 
 const router = express.Router();
+
 router
   .route('/')
   .get(getContacts)

@@ -14,6 +14,8 @@ export default interface UserTable {
 
   email: ColumnType<string, string, string>;
 
+  name: ColumnType<string, string, string>;
+
   accessToken: ColumnType<string, string, string>;
 
   refreshToken: ColumnType<string, string, string>;
