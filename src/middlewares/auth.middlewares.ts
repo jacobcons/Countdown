@@ -1,6 +1,5 @@
 /* auth */
 import { NextFunction, Request, Response } from 'express';
-import { createError } from '../utils/errors.utils.js';
 import { redis } from '../db/connection.js';
 
 export async function verifySessionToken(

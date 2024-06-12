@@ -6,7 +6,6 @@ import { contactSchema } from '../schemas/contacts.schemas.js';
 import { Contact } from '../db/types/public/Contact.js';
 import { idSchema } from '../schemas/ids.schemas.js';
 import { sql } from 'kysely';
-import { createError } from '../utils/errors.utils.js';
 import { z } from 'zod';
 
 export async function getContacts(req: Request, res: Response) {

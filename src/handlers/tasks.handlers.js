@@ -46,33 +46,38 @@ const emailWorker = new Worker('Email', async (job) => {
       ORDER BY RANDOM()
       LIMIT 1
     `.execute(db);
-    const [[{ email: userEmail, name, accessToken, refreshToken }], [{ email: contactEmail }], [{ content }],] = await Promise.all([userQuery, contactQuery, messageQuery]);
-    if (!contactEmail || !content) {
+    const [[user], [contact], [message]] = await Promise.all([
+        userQuery,
+        contactQuery,
+        messageQuery,
+    ]);
+    // if no contacts or messages are set => display custom error with task to user
+    if (!contact || !message) {
         throw new CustomError('Please ensure you have contacts and messages set');
     }
     // set status of task to failed along with email and message that is going to be sent out
     await sql `
       UPDATE task
-      SET status = 'failed', failed_recipient_email = ${contactEmail}, failed_message = ${content}
+      SET status = 'failed', failed_recipient_email = ${contact.email}, failed_message = ${message.content}
       WHERE id = ${taskId}
     `.execute(db);
     // use that data to send email
     oauth2Client.setCredentials({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        access_token: user.accessToken,
+        refresh_token: user.refreshToken,
     });
     const gmail = google.gmail({
         auth: oauth2Client,
         version: 'v1',
     });
     const body = [
-        `From: ${name} <${userEmail}>`,
-        `To: <${contactEmail}>`,
+        `From: ${user.name} <${user.email}>`,
+        `To: <${contact.email}>`,
         'Content-Type: text/html; charset=utf-8',
         'MIME-Version: 1.0',
         'Subject: ',
         '',
-        content,
+        message.content,
     ].join('\n');
     // The body needs to be base64url encoded.
     const encodedBody = Buffer.from(body)
@@ -89,6 +94,7 @@ const emailWorker = new Worker('Email', async (job) => {
         });
     }
     catch (err) {
+        // if refresh token is invalid => display custom error with task to user
         if (err.response.data.error === 'invalid_grant') {
             throw new CustomError('Please logout and log back in again to refresh your credentials');
         }

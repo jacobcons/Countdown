@@ -11,7 +11,8 @@
     "generate-types": "npx kanel",
     "migrate": "goose up && npm run generate-types",
     "rollback": "goose reset",
-    "seed": "node ./src/db/seed.js"
+    "seed": "node ./src/db/seed.js",
+    "debug": "node --inspect-brk ./src/app.js"
   },
   "keywords": [],
   "author": "",

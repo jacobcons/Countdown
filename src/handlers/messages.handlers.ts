@@ -6,7 +6,6 @@ import { messageSchema } from '../schemas/messages.schemas.js';
 import { Message } from '../db/types/public/Message.js';
 import { idSchema } from '../schemas/ids.schemas.js';
 import { sql } from 'kysely';
-import { createError } from '../utils/errors.utils.js';
 import { z } from 'zod';
 
 export async function getMessages(req: Request, res: Response) {
