@@ -1,6 +1,5 @@
 /* errors */
 import { NextFunction, Request, Response } from 'express';
-import { createError, CustomError } from '../utils/errors.utils.js';
 
 export function errorHandler(
   err: Error,
@@ -8,16 +7,12 @@ export function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
-  console.error(err.stack);
-
-  if (!(err instanceof CustomError)) {
-    err = createError('Something went wrong!', 500);
-  }
-  const customErr = err as CustomError;
-
-  return res.status(customErr.statusCode).json(customErr.response);
+  console.error(err);
+  return res.status(500).json({ message: 'Something went wrong!' });
 }
 
-export function notFound(req: Request) {
-  throw createError(`Cannot ${req.method} ${req.originalUrl}`, 404);
+export function notFound(req: Request, res: Response) {
+  return res
+    .status(404)
+    .json({ message: `Cannot ${req.method} ${req.originalUrl}` });
 }

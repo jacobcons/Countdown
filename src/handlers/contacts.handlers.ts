@@ -58,10 +58,9 @@ export async function updateContact(
   `.execute(db);
 
   if (!contact) {
-    throw createError(
-      `contact<${contactId}> belonging to user<${userId}> not found`,
-      404,
-    );
+    return res.status(404).json({
+      message: `contact<${contactId}> belonging to user<${userId}> not found`,
+    });
   }
 
   res.json(contact);
@@ -80,10 +79,9 @@ export async function deleteContact(
   `.execute(db);
 
   if (!numAffectedRows) {
-    throw createError(
-      `contact<${contactId}> belonging to user<${userId}> not found`,
-      404,
-    );
+    return res.status(404).json({
+      message: `contact<${contactId}> belonging to user<${userId}> not found`,
+    });
   }
 
   res.status(204).end();

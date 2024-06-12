@@ -1,6 +1,4 @@
 -- +goose Up
-SET timezone TO 'UTC';
-
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY,
   google_id TEXT NOT NULL UNIQUE,
@@ -10,6 +8,8 @@ CREATE TABLE "user" (
   refresh_token TEXT NOT NULL
 );
 
+CREATE TYPE status AS ENUM('ongoing', 'failed', 'completed', 'error');
+
 CREATE TABLE task (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL REFERENCES "user"(id),
@@ -17,9 +17,11 @@ CREATE TABLE task (
   title TEXT NOT NULL,
   description TEXT,
   finish_timestamp TIMESTAMP NOT NULL,
+  status STATUS NOT NULL,
   completed_timestamp TIMESTAMP,
   failed_recipient_email TEXT,
-  failed_message TEXT
+  failed_message TEXT,
+  error_message TEXT
 );
 
 CREATE TABLE contact (
@@ -38,5 +40,7 @@ CREATE TABLE message (
 DROP TABLE IF EXISTS message;
 DROP TABLE IF EXISTS contact;
 DROP TABLE IF EXISTS task;
+DROP TYPE status;
 DROP TABLE IF EXISTS "user";
+
 

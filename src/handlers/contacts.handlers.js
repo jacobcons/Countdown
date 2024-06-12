@@ -1,7 +1,6 @@
 import { db } from '../db/connection.js';
 import { sqlf } from '../utils/db.utils.js';
 import { sql } from 'kysely';
-import { createError } from '../utils/errors.utils.js';
 export async function getContacts(req, res) {
     const userId = req.user.id;
     const contacts = await sqlf `
@@ -32,7 +31,9 @@ export async function updateContact(req, res) {
     RETURNING *
   `.execute(db);
     if (!contact) {
-        throw createError(`contact<${contactId}> belonging to user<${userId}> not found`, 404);
+        return res.status(404).json({
+            message: `contact<${contactId}> belonging to user<${userId}> not found`,
+        });
     }
     res.json(contact);
 }
@@ -44,7 +45,9 @@ export async function deleteContact(req, res) {
     WHERE id = ${contactId} AND user_id = ${userId}
   `.execute(db);
     if (!numAffectedRows) {
-        throw createError(`contact<${contactId}> belonging to user<${userId}> not found`, 404);
+        return res.status(404).json({
+            message: `contact<${contactId}> belonging to user<${userId}> not found`,
+        });
     }
     res.status(204).end();
 }

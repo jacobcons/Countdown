@@ -1,12 +1,9 @@
-import { createError, CustomError } from '../utils/errors.utils.js';
 export function errorHandler(err, req, res, next) {
-    console.error(err.stack);
-    if (!(err instanceof CustomError)) {
-        err = createError('Something went wrong!', 500);
-    }
-    const customErr = err;
-    return res.status(customErr.statusCode).json(customErr.response);
+    console.error(err);
+    return res.status(500).json({ message: 'Something went wrong!' });
 }
-export function notFound(req) {
-    throw createError(`Cannot ${req.method} ${req.originalUrl}`, 404);
+export function notFound(req, res) {
+    return res
+        .status(404)
+        .json({ message: `Cannot ${req.method} ${req.originalUrl}` });
 }

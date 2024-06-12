@@ -58,10 +58,9 @@ export async function updateMessage(
   `.execute(db);
 
   if (!message) {
-    throw createError(
-      `message<${messageId}> belonging to user<${userId}> not found`,
-      404,
-    );
+    return res.status(404).json({
+      message: `message<${messageId}> belonging to user<${userId}> not found`,
+    });
   }
 
   res.json(message);
@@ -80,10 +79,9 @@ export async function deleteMessage(
   `.execute(db);
 
   if (!numAffectedRows) {
-    throw createError(
-      `message<${messageId}> belonging to user<${userId}> not found`,
-      404,
-    );
+    return res.status(404).json({
+      message: `message<${messageId}> belonging to user<${userId}> not found`,
+    });
   }
 
   res.status(204).end();

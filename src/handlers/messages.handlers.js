@@ -1,7 +1,6 @@
 import { db } from '../db/connection.js';
 import { insertDefaultMessages, sqlf } from '../utils/db.utils.js';
 import { sql } from 'kysely';
-import { createError } from '../utils/errors.utils.js';
 export async function getMessages(req, res) {
     const userId = req.user.id;
     const messages = await sqlf `
@@ -32,7 +31,9 @@ export async function updateMessage(req, res) {
     RETURNING *
   `.execute(db);
     if (!message) {
-        throw createError(`message<${messageId}> belonging to user<${userId}> not found`, 404);
+        return res.status(404).json({
+            message: `message<${messageId}> belonging to user<${userId}> not found`,
+        });
     }
     res.json(message);
 }
@@ -44,7 +45,9 @@ export async function deleteMessage(req, res) {
     WHERE id = ${messageId} AND user_id = ${userId}
   `.execute(db);
     if (!numAffectedRows) {
-        throw createError(`message<${messageId}> belonging to user<${userId}> not found`, 404);
+        return res.status(404).json({
+            message: `message<${messageId}> belonging to user<${userId}> not found`,
+        });
     }
     res.status(204).end();
 }
