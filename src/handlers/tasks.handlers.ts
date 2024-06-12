@@ -149,8 +149,16 @@ emailWorker.on('failed', async (job, err) => {
   `.execute(db);
 });
 
-export function getTasks(req: Request, res: Response) {
+export async function getTasks(req: Request, res: Response) {
   const userId = req.user.id;
+
+  const tasks = await sqlf<Task>`
+    SELECT *
+    FROM task
+    WHERE user_id = ${userId}
+  `.execute(db);
+
+  res.json(tasks);
 }
 
 export async function createTask(
