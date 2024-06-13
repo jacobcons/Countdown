@@ -31,7 +31,12 @@ export async function googleCallback(req, res) {
     });
     const { data } = await oauth2.userinfo.get();
     const { id, email, name } = data;
-    console.log(data);
+    // error if account isn't gmail/googlemail account
+    if (!email.endsWith('gmail.com') && !email.endsWith('googlemail.com')) {
+        return res
+            .status(400)
+            .json({ message: 'Only Gmail and Googlemail accounts are supported' });
+    }
     // insert user into db
     let user;
     try {

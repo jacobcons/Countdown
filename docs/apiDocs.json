@@ -55,17 +55,6 @@
             "description": "successful"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/"
-              },
-              "example": {}
-            }
-          }
-        },
         "security": [
           {
             "bearerAuth": []
@@ -89,7 +78,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/Contact"
               },
               "example": {
                 "email": "1@gmail.com"
@@ -131,7 +120,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/Contact"
               },
               "example": {
                 "email": "2@gmail.com"
@@ -209,7 +198,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/Message"
               },
               "example": {
                 "content": "The police are after me. If they ask you anything just say I moved to Thailand"
@@ -251,7 +240,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/Message"
               },
               "example": {
                 "content": "Hey, I clogged up my toilet again. Is it okay if I come and use yours?"
@@ -349,7 +338,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/CreateTask"
               },
               "example": {
                 "title": "Take out the bins",
@@ -393,12 +382,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/"
+                "$ref": "#/components/schemas/UpdateTask"
               },
-              "example": {
-                "title": "Finish my biology homework",
-                "description": "Start it on the early side because it looks quite difficult",
-                "finishTimestamp": "2024-07-13T11:50:00Z"
+              "examples": {
+                "Update task details": {
+                  "value": {
+                    "title": "Finish my biology homework",
+                    "description": "Start it on the early side because it looks quite difficult",
+                    "finishTimestamp": "2024-07-13T11:50:00Z"
+                  }
+                },
+                "Mark task as complete": {
+                  "value": {
+                    "completed": true
+                  }
+                }
               }
             }
           }
@@ -467,6 +465,64 @@
     }
   ],
   "components": {
+    "schemas": {
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": ["email"]
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "CreateTask": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "finishTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["title", "finishTimestamp"]
+      },
+      "UpdateTask": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "finishTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed": {
+            "type": "boolean",
+            "enum": [true]
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
