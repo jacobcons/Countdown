@@ -11,6 +11,8 @@ export const updateTaskSchema = z
     title: z.string(),
     description: z.string(),
     finishTimestamp: z.string().datetime(),
-    completed: z.boolean(),
+    completed: z
+      .boolean()
+      .refine((val) => val === true, { message: 'Value must be true' }),
   })
   .partial();

@@ -8,7 +8,7 @@ import {
   updateTaskSchema,
 } from '../schemas/tasks.schemas.js';
 import { z } from 'zod';
-import { Task } from '../db/types/public/Task.js';
+import { Task, TaskId } from '../db/types/public/Task.js';
 import Redis from 'ioredis';
 import { Job, Queue, Worker } from 'bullmq';
 import { User } from '../db/types/public/User.js';
@@ -17,6 +17,7 @@ import { Message } from '../db/types/public/Message.js';
 import { oauth2Client } from '../utils/auth.utils.js';
 import { google } from 'googleapis';
 import { sql } from 'kysely';
+import Status from '../db/types/public/Status.js';
 
 const connection = new Redis({
   host: process.env.REDIS_HOST,
@@ -41,9 +42,17 @@ class CustomError extends Error {
 const emailWorker = new Worker(
   'Email',
   async (job) => {
+    // extract the task and user id from the job
     const taskId = extractTaskIdFromJob(job);
     const userId = job.name;
     console.log(`job: ${userId} ${taskId}`);
+
+    // set status of task to failed immediately
+    await sql`
+      UPDATE task
+      SET status = 'failed'
+      WHERE id = ${taskId}
+    `.execute(db);
 
     // collect data about user, random contact and random message
     const userQuery = sqlf<
@@ -82,13 +91,6 @@ const emailWorker = new Worker(
       throw new CustomError('Please ensure you have contacts and messages set');
     }
 
-    // set status of task to failed along with email and message that is going to be sent out
-    await sql`
-      UPDATE task
-      SET status = 'failed', failed_recipient_email = ${contact.email}, failed_message = ${message.content}
-      WHERE id = ${taskId}
-    `.execute(db);
-
     // use that data to send email
     oauth2Client.setCredentials({
       access_token: user.accessToken,
@@ -114,12 +116,20 @@ const emailWorker = new Worker(
       .replace(/\//g, '_')
       .replace(/=+$/, '');
     try {
+      // send email out
       await gmail.users.messages.send({
         userId: 'me',
         requestBody: {
           raw: encodedBody,
         },
       });
+
+      // set recipient email and message that was sent out for the task
+      await sql`
+        UPDATE task
+        SET failed_recipient_email = ${contact.email}, failed_message = ${message.content}
+        WHERE id = ${taskId}
+      `.execute(db);
     } catch (err: any) {
       // if refresh token is invalid => display custom error with task to user
       if (err.response.data.error === 'invalid_grant') {
@@ -161,6 +171,10 @@ export async function getTasks(req: Request, res: Response) {
   res.json(tasks);
 }
 
+function calculateMsUntilDate(date: string): number {
+  return Number(new Date(date)) - Number(new Date());
+}
+
 export async function createTask(
   req: TypedRequestBody<typeof createTaskSchema>,
   res: Response,
@@ -177,11 +191,9 @@ export async function createTask(
     `.execute(trx);
 
     // schedule job to send out email when finish time is reached for task
-    const msTillFinishTime =
-      Number(new Date(finishTimestamp)) - Number(new Date());
     await emailQueue.add(userId.toString(), undefined, {
       jobId: `id-${task.id}`,
-      delay: msTillFinishTime,
+      delay: calculateMsUntilDate(finishTimestamp),
     });
     return task;
   });
@@ -189,7 +201,11 @@ export async function createTask(
   res.json(task);
 }
 
-export function updateTask(
+function getEmailJob(taskId: number) {
+  return emailQueue.getJob(`id-${taskId}`);
+}
+
+export async function updateTask(
   req: Request<
     z.infer<typeof idSchema>,
     any,
@@ -197,7 +213,50 @@ export function updateTask(
     any
   >,
   res: Response,
-) {}
+) {
+  const userId = req.user.id;
+  const taskId = req.params.id;
+  const { title, description, finishTimestamp, completed } = req.body;
+
+  // update task with new details only if the task is ongoing
+  let query = db
+    .updateTable('task')
+    .set({ title, description, finishTimestamp })
+    .where('id', '=', taskId)
+    .where('userId', '=', userId)
+    .where('status', '=', Status.ongoing)
+    .returningAll();
+
+  // if completed => update status and time task was completed
+  if (completed) {
+    query = query.set({
+      status: Status.completed,
+      completedTimestamp: new Date(),
+    });
+  }
+
+  const task = await query.executeTakeFirst();
+
+  if (!task) {
+    return res.status(404).json({
+      message: `task<${taskId}> belonging to user<${userId}> with ongoing status not found`,
+    });
+  }
+
+  // if finish timestamp => delay job so its sends email at the new timestamp
+  if (finishTimestamp) {
+    const job = await getEmailJob(taskId);
+    await job?.changeDelay(calculateMsUntilDate(finishTimestamp));
+  }
+
+  // if completed => cancel job so it doesn't send off email
+  if (completed) {
+    const job = await getEmailJob(taskId);
+    await job?.remove();
+  }
+
+  return res.json(task);
+}
 
 export function deleteTask(
   req: TypedRequestParams<typeof idSchema>,

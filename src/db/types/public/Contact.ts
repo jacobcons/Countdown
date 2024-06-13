@@ -4,8 +4,8 @@
 import { type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-/** Identifier type for public.contact */
-export type ContactId = number & { __brand: 'ContactId' };
+/** Identifier type for contact */
+export type ContactId = number;
 
 /** Represents the table public.contact */
 export default interface ContactTable {

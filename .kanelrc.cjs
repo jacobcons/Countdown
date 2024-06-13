@@ -1,4 +1,4 @@
-const { camelCase } = require('change-case-commonjs');
+const { camelCase, pascalCase } = require('change-case-commonjs');
 const kanel = require('kanel');
 const kanelKysely = require('kanel-kysely');
 
@@ -26,5 +26,17 @@ const camelCaseHook = (output) =>
 module.exports = {
   connection: process.env.DB_URL,
   outputPath: './src/db/types',
+  generateIdentifierType: (c, d) => {
+    // Id columns are already prefixed with the table name, so we don't need to add it here
+    const name = pascalCase(`${d.name}_${c.name}`);
+
+    return {
+      declarationType: 'typeDeclaration',
+      name,
+      exportAs: 'named',
+      typeDefinition: [`number`],
+      comment: [`Identifier type for ${d.name}`],
+    };
+  },
   preRenderHooks: [kanelKysely.makeKyselyHook(), camelCaseHook],
 };

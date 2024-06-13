@@ -4,8 +4,8 @@
 import { type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-/** Identifier type for public.message */
-export type MessageId = number & { __brand: 'MessageId' };
+/** Identifier type for message */
+export type MessageId = number;
 
 /** Represents the table public.message */
 export default interface MessageTable {

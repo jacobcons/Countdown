@@ -3,8 +3,8 @@
 
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-/** Identifier type for public.goose_db_version */
-export type GooseDbVersionId = number & { __brand: 'GooseDbVersionId' };
+/** Identifier type for goose_db_version */
+export type GooseDbVersionId = number;
 
 /** Represents the table public.goose_db_version */
 export default interface GooseDbVersionTable {

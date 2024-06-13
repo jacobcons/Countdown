@@ -3,8 +3,8 @@
 
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-/** Identifier type for public.user */
-export type UserId = number & { __brand: 'UserId' };
+/** Identifier type for user */
+export type UserId = number;
 
 /** Represents the table public.user */
 export default interface UserTable {

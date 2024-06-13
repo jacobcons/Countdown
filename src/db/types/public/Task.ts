@@ -5,8 +5,8 @@ import { type UserId } from './User';
 import { type default as Status } from './Status';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-/** Identifier type for public.task */
-export type TaskId = number & { __brand: 'TaskId' };
+/** Identifier type for task */
+export type TaskId = number;
 
 /** Represents the table public.task */
 export default interface TaskTable {
