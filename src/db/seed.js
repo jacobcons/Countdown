@@ -11,17 +11,20 @@ await redis.flushall();
 await sql `
   INSERT INTO "user"(google_id, email, name, access_token, refresh_token) 
   VALUES 
-    ('115363395831265500963', 'jacobcons@gmail.com', 'Jacob', '1', '1//03SJA1gUk3hv6CgYIARAAGAMSNwF-L9Ir9Z9looe6X3ruxKp9mOdz29rvQy4U9zRM1MEFiIuzQPp2yLhJTD-Xb_qm1guv6N-NlMA'),
-    ('107607028239165399930', 'yuri31450@gmail.com', 'Yuri Smith', '1', '1//03rBeF7IuMUcNCgYIARAAGAMSNwF-L9IrSXNJ-ilAuwbgkGkG6Gq-OX3wXqaAH_d5DYHsNFe6gos6P8QFFngQ9sgeljajdMUh-aE');
+    ('115363395831265500963', 'jacobcons@gmail.com', 'Jacob', '1', ${process.env.REFRESH_TOKEN_USER_1}),
+    ('107607028239165399930', 'yuri31450@gmail.com', 'Yuri Smith', '1', ${process.env.REFRESH_TOKEN_USER_2});
 `.execute(db);
+// insert contacts for each user
 await sql `
   INSERT INTO contact(user_id, email)
   VALUES 
     (2, 'jacobcons@gmail.com'),
     (1, 'yuri31450@gmail.com');
 `.execute(db);
+// insert default messages for each user
 await insertDefaultMessages(1, db);
 await insertDefaultMessages(2, db);
+// insert session tokens for each user
 await redis.set('sessionToken:ukAuhLw3uxFtRKNSDFghew==', '1');
 await redis.set('sessionToken:T0I1MaonQQPQ917mKozsRg==', '2');
 process.exit(0);
