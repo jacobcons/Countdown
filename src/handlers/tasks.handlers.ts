@@ -198,7 +198,7 @@ export async function createTask(
     return task;
   });
 
-  res.json(task);
+  res.status(201).json(task);
 }
 
 function getEmailJob(taskId: number) {
@@ -214,8 +214,8 @@ export async function updateTask(
   >,
   res: Response,
 ) {
-  const userId = req.user.id;
   const taskId = req.params.id;
+  const userId = req.user.id;
   const { title, description, finishTimestamp, completed } = req.body;
 
   // update task with new details only if the task is ongoing
@@ -243,13 +243,14 @@ export async function updateTask(
     });
   }
 
+  // if task was updated =>
   // if finish timestamp => delay job so its sends email at the new timestamp
   if (finishTimestamp) {
     const job = await getEmailJob(taskId);
     await job?.changeDelay(calculateMsUntilDate(finishTimestamp));
   }
 
-  // if completed => cancel job so it doesn't send off email
+  // if completed => remove job so it doesn't send off email
   if (completed) {
     const job = await getEmailJob(taskId);
     await job?.remove();
@@ -258,7 +259,27 @@ export async function updateTask(
   return res.json(task);
 }
 
-export function deleteTask(
+export async function deleteTask(
   req: TypedRequestParams<typeof idSchema>,
   res: Response,
-) {}
+) {
+  const taskId = req.params.id;
+  const userId = req.user.id;
+
+  const { numAffectedRows } = await sql`
+    DELETE FROM task 
+    WHERE id = ${taskId} AND user_id = ${userId} AND status = ${Status.ongoing}
+  `.execute(db);
+
+  if (!numAffectedRows) {
+    return res.status(404).json({
+      message: `task<${taskId}> belonging to user<${userId}> with ongoing status not found`,
+    });
+  }
+
+  // if the task was deleted => remove job so it doesn't send off email
+  const job = await getEmailJob(taskId);
+  await job?.remove();
+
+  return res.status(204).end();
+}
