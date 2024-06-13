@@ -7,9 +7,14 @@ import messagesRouter from './routers/messages.router.js';
 import morgan from 'morgan';
 import { errorHandler, notFound } from './middlewares/errors.middlewares.js';
 import { verifySessionToken } from './middlewares/auth.middlewares.js';
+import helmet from 'helmet';
+import apiDocs from '../docs/apiDocs.json' with { type: 'json' };
+import swaggerUi from 'swagger-ui-express';
 const app = express();
+app.use(helmet());
 app.use(morgan('tiny'));
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDocs));
 app.use('/auth', authRouter);
 // protected routes
 app.use(verifySessionToken);
