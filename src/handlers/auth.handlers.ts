@@ -11,6 +11,7 @@ export function googleGenerateAuthUrl(req: Request, res: Response) {
   res.json({
     url: oauth2Client.generateAuthUrl({
       access_type: 'offline',
+      prompt: 'consent',
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email',
