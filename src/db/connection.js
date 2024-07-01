@@ -10,8 +10,4 @@ export const db = new Kysely({
     dialect,
     plugins: [new CamelCasePlugin()],
 });
-export const redis = new Redis({
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT),
-    db: 0,
-});
+export const redis = new Redis(`${process.env.REDIS_URL}/0`);

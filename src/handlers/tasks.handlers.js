@@ -6,10 +6,7 @@ import { oauth2Client } from '../utils/auth.utils.js';
 import { google } from 'googleapis';
 import { sql } from 'kysely';
 import Status from '../db/types/public/Status.js';
-const connection = new Redis({
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT),
-    db: 1,
+const connection = new Redis(`${process.env.REDIS_URL}/1`, {
     maxRetriesPerRequest: null,
 });
 const emailQueue = new Queue('Email', { connection });
