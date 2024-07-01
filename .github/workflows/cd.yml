@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'public/**'
       - 'src/**'
       - 'docs/apiDocs.json'
       - 'Dockerfile'
-      - 'knexfile.js'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: doublethebass/emote:latest
+          tags: doublethebass/countdown:latest
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -36,4 +36,4 @@ jobs:
 
       - name: Update and restart Droplet
         run: |
-          doctl apps create-deployment c266b61f-703a-45c3-a322-a946eb55f941
+          doctl apps create-deployment d91efb75-2a9a-46cd-967e-bce9420ca0ad
