@@ -12,7 +12,7 @@ import {
   processRequestBody,
   processRequestParams,
 } from 'zod-express-middleware';
-import { idSchema } from '../schemas/ids.schemas.js';
+import { idSchema } from '../schemas/misc.schemas.js';
 
 const router = express.Router();
 router

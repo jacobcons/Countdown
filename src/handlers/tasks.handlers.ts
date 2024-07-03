@@ -1,7 +1,7 @@
 import { Request, RequestParamHandler, Response } from 'express';
 import { db, redis } from '../db/connection.js';
 import { sqlf } from '../utils/db.utils.js';
-import { idSchema } from '../schemas/ids.schemas.js';
+import { idSchema } from '../schemas/misc.schemas.js';
 import { TypedRequestBody, TypedRequestParams } from 'zod-express-middleware';
 import {
   createTaskSchema,

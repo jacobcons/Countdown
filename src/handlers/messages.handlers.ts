@@ -4,7 +4,7 @@ import { insertDefaultMessages, sqlf } from '../utils/db.utils.js';
 import { TypedRequestBody, TypedRequestParams } from 'zod-express-middleware';
 import { messageSchema } from '../schemas/messages.schemas.js';
 import { Message } from '../db/types/public/Message.js';
-import { idSchema } from '../schemas/ids.schemas.js';
+import { idSchema } from '../schemas/misc.schemas.js';
 import { sql } from 'kysely';
 import { z } from 'zod';
 

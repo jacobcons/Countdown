@@ -4,7 +4,7 @@ import { sqlf } from '../utils/db.utils.js';
 import { TypedRequestBody, TypedRequestParams } from 'zod-express-middleware';
 import { contactSchema } from '../schemas/contacts.schemas.js';
 import { Contact } from '../db/types/public/Contact.js';
-import { idSchema } from '../schemas/ids.schemas.js';
+import { idSchema } from '../schemas/misc.schemas.js';
 import { sql } from 'kysely';
 import { z } from 'zod';
 
