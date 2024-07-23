@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Countdown",
-    "description": "Please note that the app is currently pending approval for google oauth, hence you will have to contact me at j@jacobcons.com in order to have your email manually added to the list of approved emails in order to create an account\n\nGet up and running:\n1. Generate google auth url => click returned url => login with gmail account => copy returned session token\n2. Click authorize in swagger docs => enter session token\n3. Create some contacts\n4. Feel free to create some messages but your account will come loaded with some defaults\n5. Create a task (timing is all GMT based) => let it expire and see the random embarassing email sent through\n6. Try updating an ongoing task's finishTimestamp and you'll see how the email will be sent off at the new time\n7. Try marking an ongoing task as complete or deleting it, and you'll see how the email doesn't get sent off",
+    "description": "Get up and running:\n1. Generate google auth url => click returned url => login with gmail account => copy returned session token\n2. Click authorize in swagger docs => enter session token\n3. Create some contacts\n4. Feel free to create some messages but your account will come loaded with some defaults\n5. Create a task (timing is all GMT based) => let it expire and see the random embarassing email sent through\n6. Try updating an ongoing task's finishTimestamp and you'll see how the email will be sent off at the new time\n7. Try marking an ongoing task as complete or deleting it, and you'll see how the email doesn't get sent off",
     "version": "1.0.0"
   },
   "paths": {
